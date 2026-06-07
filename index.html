@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -11,7 +11,7 @@
 <link rel="icon" href="icon-180.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Strategy Yatzy · 6 terninger · Scoretavle</title>
+<title>Strategy Yatzy · 6 dice · Scorecard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,6 +36,7 @@
   body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
     background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .7px);background-size:5px 5px;z-index:0}
   .wrap{max-width:1080px;margin:0 auto;width:100%;position:relative;z-index:1;display:flex;flex-direction:column;gap:6px}
+  .hidden{display:none !important}
 
   /* top bar */
   .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -44,15 +45,49 @@
   .brand h1 .dot{color:var(--gold)}
   .brand .tag{color:#bfd8c9;font-size:14px}
   .top-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .seg{display:flex;align-items:center;gap:7px;color:#cfe3d6;font-size:14px;font-weight:600}
-  .seg .btns{display:flex;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:9px;overflow:hidden}
-  .seg .btns button{border:none;background:transparent;color:#dfeee5;font-family:var(--mono);font-weight:700;width:30px;height:28px;cursor:pointer;font-size:15.5px}
-  .seg .btns button.on{background:var(--gold);color:#241a06}
-  .seg .btns button:not(.on):hover{background:rgba(255,255,255,.1)}
+  .diffbadge{display:flex;align-items:center;gap:6px;color:#dfeee5;font-size:13.5px;font-weight:600;
+    background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:5px 10px}
+  .diffbadge b{color:var(--gold)}
   button.btn{font-family:var(--body);font-weight:600;font-size:14.5px;cursor:pointer;border-radius:9px;padding:7px 11px;
     border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#f3ecdb}
   button.btn:hover{background:rgba(255,255,255,.14)}
+  button.btn.gold{background:var(--gold);color:#241a06;border-color:var(--gold)}
+  button.btn.gold:hover{background:#d8a23a}
   button.icon{width:30px;height:30px;padding:0;font-size:17px;font-weight:700}
+
+  /* setup screen */
+  .setup{position:relative;z-index:1;width:100%;max-width:560px;margin:auto;display:flex;flex-direction:column;align-items:center;padding:18px 4px}
+  .setup .logo{font-family:var(--display);font-weight:600;font-size:38px;color:#fdf7e9;letter-spacing:-.01em;margin:6px 0 2px}
+  .setup .logo .dot{color:var(--gold)}
+  .setup .sub{color:#bfd8c9;font-size:14.5px;margin:0 0 16px;text-align:center}
+  .scard{background:var(--card);border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--shadow);width:100%;padding:18px 20px}
+  .field{margin:0 0 16px}
+  .field:last-child{margin-bottom:0}
+  .flabel{font-family:var(--display);font-weight:600;font-size:14px;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+  .countpick{display:flex;gap:6px}
+  .countpick button{flex:1;border:1px solid var(--card-line);background:#fffdf7;color:var(--ink);font-family:var(--mono);font-weight:700;
+    font-size:17px;height:40px;border-radius:9px;cursor:pointer}
+  .countpick button.on{background:var(--gold);color:#241a06;border-color:var(--gold)}
+  .namerow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .namerow .idx{width:20px;text-align:center;font-family:var(--mono);font-weight:700;color:var(--ink-soft);font-size:14px}
+  .namerow input.nm{flex:1;border:1px solid var(--card-line);background:#fffdf7;border-radius:9px;padding:9px 11px;font-size:15px;
+    font-family:var(--body);color:var(--ink);outline:none}
+  .namerow input.nm:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,149,44,.2)}
+  .namerow input.nm:disabled{background:#efe7d4;color:var(--ink-soft)}
+  .botbtn{border:1px solid var(--card-line);background:#fffdf7;color:var(--ink-soft);border-radius:9px;padding:8px 11px;font-size:13px;
+    font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .botbtn.on{background:#15463a;color:#ffe6a6;border-color:#15463a}
+  .diffpick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .diffpick button{border:1px solid var(--card-line);background:#fffdf7;border-radius:11px;padding:11px;cursor:pointer;text-align:left;
+    display:flex;flex-direction:column;gap:2px}
+  .diffpick button b{font-family:var(--display);font-weight:600;font-size:16px;color:var(--ink)}
+  .diffpick button span{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+  .diffpick button.on{background:#15463a;border-color:#15463a}
+  .diffpick button.on b{color:#fdf7e9}
+  .diffpick button.on span{color:#ffd86b}
+  .startbtn{margin-top:18px;width:100%;border:none;background:var(--gold);color:#241a06;font-family:var(--display);font-weight:600;
+    font-size:18px;padding:13px;border-radius:12px;cursor:pointer;box-shadow:0 6px 18px rgba(201,149,44,.35)}
+  .startbtn:hover{background:#d8a23a}
 
   /* board */
   .board{background:var(--card);border:1px solid var(--card-line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}
@@ -65,7 +100,9 @@
   .pname{border:none;background:transparent;font-family:var(--display);font-weight:600;font-size:17px;color:#fdf7e9;
     text-align:center;width:100%;padding:1px 2px;outline:none;border-bottom:1.5px dashed transparent}
   .pname:focus{border-bottom-color:var(--gold)}
+  .pname:disabled{color:#cfe3d6}
   .lead .pname{color:#ffe6a6}
+  .botbadge{font-size:13px}
 
   tbody td{border-top:1px solid var(--card-line)}
   .catname{text-align:left;padding:1px 13px;font-weight:500;color:var(--ink);font-size:14.5px;display:flex;align-items:baseline;gap:6px}
@@ -80,6 +117,8 @@
   .cell input.kast{width:31px;height:24px;font-size:13px;color:var(--ink-soft);background:#f1ead8}
   .cell input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,149,44,.2)}
   .cell input.kast.over{border-color:var(--bad);color:var(--bad);box-shadow:0 0 0 2px rgba(178,58,46,.2)}
+  .cell input.bot{background:#eee3cc;color:var(--ink-soft);cursor:not-allowed}
+  .cell input.score.bot{color:#1c5848}
 
   tr.sumrow td{background:#e8dcc2}
   tr.sumrow .catname{font-weight:600;color:var(--gold-deep);font-size:14px}
@@ -127,7 +166,7 @@
   html{-webkit-text-size-adjust:100%}
   body{-webkit-tap-highlight-color:transparent;
     padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
-  .top,.board,thead,.catname,button.btn,.seg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .top,.board,thead,.catname,button.btn{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .cell input,.pname{-webkit-user-select:text;user-select:text}
   #iostip{position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
     background:rgba(16,58,46,.97);color:#f3ecdb;font-size:13px;line-height:1.45;
@@ -137,19 +176,46 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<!-- ===== SETUP SCREEN ===== -->
+<div class="setup" id="setupScreen">
+  <div class="logo">Strategy <span class="dot">Yatzy</span></div>
+  <p class="sub">6 dice · scorecard with the saved-throws twist</p>
+  <div class="scard">
+    <div class="field">
+      <div class="flabel">Players</div>
+      <div class="countpick" id="setupCount">
+        <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button>
+        <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="flabel">Names</div>
+      <div id="nameList"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Difficulty</div>
+      <div class="diffpick" id="diffPick">
+        <button data-d="normal"><b>Normal</b><span>54 throws</span></button>
+        <button data-d="difficult"><b>Difficult</b><span>50 throws</span></button>
+        <button data-d="hard"><b>Hard</b><span>46 throws</span></button>
+      </div>
+    </div>
+    <button class="startbtn" id="startBtn">Start game</button>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div class="wrap hidden" id="gameScreen">
 
   <div class="top">
     <div class="brand"><h1>Strategy <span class="dot">Yatzy</span></h1></div>
     <div class="top-r">
-      <div class="seg">Spillere
-        <div class="btns" id="pcount">
-          <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
-        </div>
-      </div>
-      <button class="btn icon" id="helpBtn" title="Regler & indstillinger">?</button>
-      <button class="btn" id="exportBtn">Gem fil</button>
-      <button class="btn" id="resetBtn">Nyt spil</button>
+      <div class="diffbadge" id="diffBadge"></div>
+      <button class="btn gold hidden" id="botBtn" title="Let the bot(s) play the next round">🤖 Bot round</button>
+      <button class="btn icon" id="helpBtn" title="Rules &amp; settings">?</button>
+      <button class="btn" id="exportBtn">Save file</button>
+      <button class="btn" id="resetBtn">New game</button>
     </div>
   </div>
 
@@ -161,25 +227,17 @@
     </table>
   </div>
 
-  <footer>Stort felt = point · lille felt = kast brugt i runden · data gemmes lokalt · tryk “?” for regler</footer>
+  <footer>Large field = points · small field = throws used in the round · data saved locally · press “?” for rules</footer>
 </div>
 
 <div class="ov" id="ov">
   <div class="modal">
     <button class="close" id="closeBtn">×</button>
-    <h2>Regler: opsparede slag</h2>
-    <p>18 runder. Du har <code>50 slag</code> i alt pr. spiller — et twist: 4 færre end de normale 54.</p>
-    <ul>
-      <li>Slutter du en runde på færre slag, <b>sparer du resten op</b>. Skriv <code>0</code> for at spare alle 3 slag den runde.</li>
-      <li>Du må bruge ekstra slag, så længe der bliver <b>mindst 1 slag til hver resterende runde</b>.</li>
-      <li><b>Max denne runde</b> = <code>50 − brugt − (resterende runder − 1)</code>. Runde 1: op til <code>33</code>.</li>
-      <li><b>Slag-status</b>: starter på <code>−4</code> (50 slag mod normalt 54). Spar slag op for at hente det op mod 0 — positivt = forspring, negativt = bagud.</li>
-      <li><b>Bonus-status</b> (i parentes ved bonus): kurs mod bonussen (<b>85</b>). 5 firere = <code>+4</code>.</li>
-      <li><b>Yatzy</b> (6 ens): husk at lægge <b>100 point</b> til selv, oveni øjnenes sum.</li>
-    </ul>
+    <h2>Rules: saved throws</h2>
+    <div id="ruleBody"></div>
     <div class="setrow">
-      <label>Bonusgrænse <input type="number" id="setThresh" min="0"></label>
-      <label>Bonuspoint <input type="number" id="setBonus" min="0"></label>
+      <label>Bonus threshold <input type="number" id="setThresh" min="0"></label>
+      <label>Bonus points <input type="number" id="setBonus" min="0"></label>
     </div>
   </div>
 </div>
@@ -187,31 +245,44 @@
 <script>
 (function(){
   "use strict";
-  var ROUNDS=18, BASE=3, BUDGET=50; // twist: 50 slag i alt (normalt 54)
-  var KEY='yatzy6_state_v4';
+  var ROUNDS=18, BASE=3;
+  var KEY='yatzy6_state_v5';
+
+  var DIFFS={
+    normal:{name:'Normal',budget:54},
+    difficult:{name:'Difficult',budget:50},
+    hard:{name:'Hard',budget:46}
+  };
+  var THROW_BONUS=5; // each throw left over at game end = 5 points
 
   var UPPER=[
-    {key:'enere',name:'Enere',hint:'1\u2019ere'},{key:'toere',name:'Toere',hint:'2\u2019ere'},
-    {key:'treere',name:'Treere',hint:'3\u2019ere'},{key:'firere',name:'Firere',hint:'4\u2019ere'},
-    {key:'femmere',name:'Femmere',hint:'5\u2019ere'},{key:'seksere',name:'Seksere',hint:'6\u2019ere'}
+    {key:'ones',name:'Ones',hint:'1s'},{key:'twos',name:'Twos',hint:'2s'},
+    {key:'threes',name:'Threes',hint:'3s'},{key:'fours',name:'Fours',hint:'4s'},
+    {key:'fives',name:'Fives',hint:'5s'},{key:'sixes',name:'Sixes',hint:'6s'}
   ];
   var LOWER=[
-    {key:'etpar',name:'Et par',hint:'2 ens'},{key:'topar',name:'To par',hint:'2+2'},
-    {key:'trepar',name:'Tre par',hint:'2+2+2'},{key:'treens',name:'Tre ens',hint:'3 ens'},
-    {key:'fireens',name:'Fire ens',hint:'4 ens'},
-    {key:'lillestr',name:'Lille straight',hint:'1-2-3-4-5'},{key:'storstr',name:'Stor straight',hint:'2-3-4-5-6'},
-    {key:'royale',name:'Royale',hint:'1-2-3-4-5-6'},
-    {key:'hus',name:'Hus',hint:'3+2 ens'},{key:'villa',name:'Villa',hint:'3+3 ens'},
-    {key:'chance',name:'Chance',hint:'alle terninger'},
-    {key:'yatzy',name:'Yatzy',hint:'6 ens · læg selv +100 til'}
+    {key:'onepair',name:'One pair',hint:'2 alike'},{key:'twopairs',name:'Two pairs',hint:'2+2'},
+    {key:'threepairs',name:'Three pairs',hint:'2+2+2'},{key:'threekind',name:'Three of a kind',hint:'3 alike'},
+    {key:'fourkind',name:'Four of a kind',hint:'4 alike'},
+    {key:'smallstr',name:'Small straight',hint:'1-2-3-4-5'},{key:'largestr',name:'Large straight',hint:'2-3-4-5-6'},
+    {key:'royal',name:'Royal',hint:'1-2-3-4-5-6'},
+    {key:'house',name:'House',hint:'3+2 alike'},{key:'villa',name:'Villa',hint:'3+3 alike'},
+    {key:'chance',name:'Chance',hint:'all dice'},
+    {key:'yatzy',name:'Yatzy',hint:'6 alike · add +100 yourself'}
   ];
   var ALL=UPPER.concat(LOWER);
 
+  // rough expected value per category, used by the bot to decide where a roll fits best
+  var EXP={ones:3,twos:6,threes:9,fours:12,fives:15,sixes:18,
+    onepair:8,twopairs:14,threepairs:18,threekind:11,fourkind:13,
+    smallstr:15,largestr:20,royal:21,house:21,villa:24,chance:23,yatzy:30};
+
   var MAXP=6;
-  function emptyPlayer(i){var sc={},ka={};ALL.forEach(function(c){sc[c.key]='';ka[c.key]='';});return {name:'Spiller '+(i+1),score:sc,kast:ka};}
+  function emptyScores(){var sc={},ka={};ALL.forEach(function(c){sc[c.key]='';ka[c.key]='';});return {score:sc,kast:ka};}
+  function emptyPlayer(i){var e=emptyScores();return {name:'Player '+(i+1),bot:false,score:e.score,kast:e.kast};}
   function newState(){
     var players=[];for(var i=0;i<MAXP;i++)players.push(emptyPlayer(i));
-    return {players:players,nplayers:2,settings:{thresh:85,bonus:50}};
+    return {players:players,nplayers:2,difficulty:'difficult',started:false,settings:{thresh:84,bonus:50}};
   }
   function load(){
     try{var s=JSON.parse(localStorage.getItem(KEY));
@@ -220,7 +291,10 @@
       if(!ok)return null;
       while(s.players.length<MAXP)s.players.push(emptyPlayer(s.players.length));
       if(s.players.length>MAXP)s.players=s.players.slice(0,MAXP);
-      if(!s.settings)s.settings={thresh:85,bonus:50};
+      s.players.forEach(function(p){if(typeof p.bot!=='boolean')p.bot=false;});
+      if(!s.settings)s.settings={thresh:84,bonus:50};
+      if(!s.difficulty||!DIFFS[s.difficulty])s.difficulty='difficult';
+      if(typeof s.started!=='boolean')s.started=false;
       if(!s.nplayers)s.nplayers=2;
       if(s.nplayers>MAXP)s.nplayers=MAXP;
       return s;
@@ -229,44 +303,112 @@
   function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
   var state=load()||newState();
 
+  function BUDGET(){return DIFFS[state.difficulty].budget;}
   function num(v){var n=parseInt(v,10);return isNaN(n)?0:n;}
   function filled(v){return v!==''&&v!=null;}
   function played(p){var c=0;ALL.forEach(function(x){if(filled(p.kast[x.key]))c++;});return c;}
   function used(p){var t=0;ALL.forEach(function(x){if(filled(p.kast[x.key]))t+=num(p.kast[x.key]);});return t;}
-  function maxRound(p){var pl=played(p);return pl>=ROUNDS?0:BUDGET-used(p)-(ROUNDS-pl-1);}
-  function feasible(p){return (BUDGET-used(p))>=(ROUNDS-played(p));}
-  function slagStatus(p){return BUDGET-used(p)-BASE*(ROUNDS-played(p));} // starter paa -4, hentes op mod 0
+  function maxRound(p){var pl=played(p);return pl>=ROUNDS?0:BUDGET()-used(p)-(ROUNDS-pl-1);}
+  function feasible(p){return (BUDGET()-used(p))>=(ROUNDS-played(p));}
+  function slagStatus(p){return BUDGET()-used(p)-BASE*(ROUNDS-played(p));}
   function upperSum(p){var s=0;UPPER.forEach(function(c){s+=num(p.score[c.key]);});return s;}
   function bonusVal(p){return upperSum(p)>=state.settings.thresh?state.settings.bonus:0;}
   function bonusProgress(p){var pr=0;UPPER.forEach(function(c,i){if(filled(p.score[c.key]))pr+=num(p.score[c.key])-4*(i+1);});return pr;}
   function lowerSum(p){var s=0;LOWER.forEach(function(c){s+=num(p.score[c.key]);});return s;}
-  function total(p){return upperSum(p)+bonusVal(p)+lowerSum(p);}
+  function throwBonus(p){return played(p)>=ROUNDS?(BUDGET()-used(p))*THROW_BONUS:0;}
+  function total(p){return upperSum(p)+bonusVal(p)+lowerSum(p)+throwBonus(p);}
   function N(){return state.nplayers;}
   function sgn(n){return (n>0?'+':'')+n;}
   function esc(s){return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
 
+  /* ===== dice scoring (6 dice) ===== */
+  function counts(d){var c=[0,0,0,0,0,0,0];d.forEach(function(v){c[v]++;});return c;}
+  function scoreCat(key,d){
+    var c=counts(d),i,s=0;
+    var faceIdx={ones:1,twos:2,threes:3,fours:4,fives:5,sixes:6}[key];
+    if(faceIdx)return faceIdx*c[faceIdx];
+    function nKind(n){for(i=6;i>=1;i--)if(c[i]>=n)return i;return 0;}
+    switch(key){
+      case 'onepair':{var p=nKind(2);return p?2*p:0;}
+      case 'twopairs':{var got=[];for(i=6;i>=1;i--)if(c[i]>=2)got.push(i);return got.length>=2?2*(got[0]+got[1]):0;}
+      case 'threepairs':{var g=[];for(i=6;i>=1;i--)if(c[i]>=2)g.push(i);return g.length>=3?2*(g[0]+g[1]+g[2]):0;}
+      case 'threekind':{var t=nKind(3);return t?3*t:0;}
+      case 'fourkind':{var q=nKind(4);return q?4*q:0;}
+      case 'smallstr':return (c[1]&&c[2]&&c[3]&&c[4]&&c[5])?15:0;
+      case 'largestr':return (c[2]&&c[3]&&c[4]&&c[5]&&c[6])?20:0;
+      case 'royal':return (c[1]&&c[2]&&c[3]&&c[4]&&c[5]&&c[6])?21:0;
+      case 'house':{var th=nKind(3);if(!th)return 0;var pr=0;for(i=6;i>=1;i--)if(i!==th&&c[i]>=2){pr=i;break;}return pr?3*th+2*pr:0;}
+      case 'villa':{var a=0,b=0;for(i=6;i>=1;i--)if(c[i]>=3){if(!a)a=i;else if(!b){b=i;break;}}return (a&&b)?3*a+3*b:0;}
+      case 'chance':{for(i=1;i<=6;i++)s+=i*c[i];return s;}
+      case 'yatzy':{for(i=1;i<=6;i++)if(c[i]>=6)return 6*i+100;return 0;}
+    }
+    return 0;
+  }
+
+  /* ===== bot ===== */
+  function roll6(){var d=[];for(var i=0;i<6;i++)d.push(1+Math.floor(Math.random()*6));return d;}
+  function rerollKeepMode(d){
+    var c=counts(d),best=1;
+    for(var i=2;i<=6;i++)if(c[i]>=c[best])best=i; // keep most frequent (ties -> higher face)
+    var nd=[];d.forEach(function(v){nd.push(v===best?v:(1+Math.floor(Math.random()*6)));});
+    return nd;
+  }
+  function strong(d,rem){
+    var c=counts(d),i;
+    for(i=1;i<=6;i++)if(c[i]>=5)return true;
+    for(var j=0;j<rem.length;j++){if(scoreCat(rem[j],d)-EXP[rem[j]]>=8)return true;}
+    return false;
+  }
+  function botPlayTurn(p){
+    var rem=[];ALL.forEach(function(c){if(!filled(p.score[c.key]))rem.push(c.key);});
+    if(!rem.length)return false;
+    var turnsLeft=rem.length;
+    var maxThrows=BUDGET()-used(p)-(turnsLeft-1);
+    if(maxThrows<1)maxThrows=1;if(maxThrows>3)maxThrows=3;
+    var pace=Math.max(1,Math.round((BUDGET()-used(p))/turnsLeft));
+    var target=Math.min(maxThrows,Math.max(1,pace));
+    var d=roll6(),rolls=1;
+    while(rolls<target){d=rerollKeepMode(d);rolls++;if(strong(d,rem))break;}
+    var best=rem[0],bestRel=-1e9,bestScore=0;
+    rem.forEach(function(k){var sc=scoreCat(k,d),rel=sc-EXP[k];if(rel>bestRel){bestRel=rel;best=k;bestScore=sc;}});
+    p.score[best]=String(bestScore);
+    p.kast[best]=String(rolls);
+    return true;
+  }
+  function maxHumanPlayed(){var m=0;for(var i=0;i<N();i++){var p=state.players[i];if(!p.bot){var pl=played(p);if(pl>m)m=pl;}}return m;}
+  function anyBot(){for(var i=0;i<N();i++)if(state.players[i].bot)return true;return false;}
+  function advanceBotsTo(target){
+    for(var i=0;i<N();i++){var p=state.players[i];if(!p.bot)continue;var guard=0;
+      while(played(p)<target&&played(p)<ROUNDS&&feasible(p)&&guard<ROUNDS){if(!botPlayTurn(p))break;guard++;}}
+  }
+  var lastHumanPlayed=0;
+
+  /* ===== board ===== */
   var cols=document.getElementById('cols'),thead=document.getElementById('thead'),tbody=document.getElementById('tbody');
-  function cellInputs(key){var c='';for(var i=0;i<N();i++)c+='<td class="cell"><div class="pair">'+
-    '<input class="score" type="number" inputmode="numeric" data-p="'+i+'" data-c="'+key+'" data-t="score" placeholder="–">'+
-    '<input class="kast" type="number" inputmode="numeric" min="0" data-p="'+i+'" data-c="'+key+'" data-t="kast" placeholder="" title="Antal kast i runden (0 = spar hele runden op)">'+
-    '</div></td>';return c;}
+  function cellInputs(key){var c='';for(var i=0;i<N();i++){var bot=state.players[i].bot;var ro=bot?' readonly':'';var bc=bot?' bot':'';
+    c+='<td class="cell"><div class="pair">'+
+    '<input class="score'+bc+'" type="number" inputmode="numeric" data-p="'+i+'" data-c="'+key+'" data-t="score" placeholder="–"'+ro+'>'+
+    '<input class="kast'+bc+'" type="number" inputmode="numeric" min="0" data-p="'+i+'" data-c="'+key+'" data-t="kast" placeholder="" title="Throws used in the round (0 = save the whole round)"'+ro+'>'+
+    '</div></td>';}return c;}
   function sumCells(id,extra){var c='';for(var i=0;i<N();i++)c+='<td class="cell'+(extra?' '+extra+'-'+i:'')+'" id="'+(extra||'x')+'cell-'+i+'"><span class="sv" id="'+id+'-'+i+'">0</span></td>';return c;}
 
   function buildBoard(){
     var cg='<col class="cat">';for(var i=0;i<N();i++)cg+='<col>';cols.innerHTML=cg;
-    var th='<th class="cat">Kategori</th>';
-    for(var j=0;j<N();j++)th+='<th id="th-'+j+'"><input class="pname" data-p="'+j+'" maxlength="14" value="'+esc(state.players[j].name)+'"></th>';
+    var th='<th class="cat">Category</th>';
+    for(var j=0;j<N();j++){var p=state.players[j];var badge=p.bot?'<span class="botbadge">🤖 </span>':'';
+      th+='<th id="th-'+j+'">'+badge+'<input class="pname" data-p="'+j+'" maxlength="14" value="'+esc(p.name)+'"'+(p.bot?' disabled':'')+'></th>';}
     thead.innerHTML=th;
 
     var html='';
     UPPER.forEach(function(c){html+='<tr class="cat-row"><td class="catname">'+c.name+'<span class="hint">'+c.hint+'</span></td>'+cellInputs(c.key)+'</tr>';});
-    html+='<tr class="sumrow"><td class="catname">Sum øvre</td>'+sumCells('us')+'</tr>';
-    html+='<tr class="bonusrow"><td class="catname" id="blab">Bonus (ved '+state.settings.thresh+'+)</td>'+sumCells('bo')+'</tr>';
+    html+='<tr class="sumrow"><td class="catname">Upper sum</td>'+sumCells('us')+'</tr>';
+    html+='<tr class="bonusrow"><td class="catname" id="blab">Bonus (at '+state.settings.thresh+'+)</td>'+sumCells('bo')+'</tr>';
     LOWER.forEach(function(c){html+='<tr class="cat-row"><td class="catname">'+c.name+'<span class="hint">'+c.hint+'</span></td>'+cellInputs(c.key)+'</tr>';});
-    html+='<tr class="totalrow"><td class="catname">I alt</td>'+sumCells('tt','tot')+'</tr>';
-    html+='<tr class="maxrow"><td class="catname">Max kast · denne runde</td>'+sumCells('mx')+'</tr>';
-    html+='<tr class="leftrow"><td class="catname">Slag tilbage i alt</td>'+sumCells('lt')+'</tr>';
-    html+='<tr class="statrow"><td class="catname">Slag-status (ift. 3/runde)</td>'+sumCells('ss')+'</tr>';
+    html+='<tr class="sumrow"><td class="catname">Throws-left bonus (×5)</td>'+sumCells('tb')+'</tr>';
+    html+='<tr class="totalrow"><td class="catname">Total</td>'+sumCells('tt','tot')+'</tr>';
+    html+='<tr class="maxrow"><td class="catname">Max throws · this round</td>'+sumCells('mx')+'</tr>';
+    html+='<tr class="leftrow"><td class="catname">Throws left in total</td>'+sumCells('lt')+'</tr>';
+    html+='<tr class="statrow"><td class="catname">Throw status (vs. 3/round)</td>'+sumCells('ss')+'</tr>';
     tbody.innerHTML=html;
 
     tbody.querySelectorAll('input.score,input.kast').forEach(function(inp){inp.value=state.players[+inp.dataset.p][inp.dataset.t][inp.dataset.c];});
@@ -275,11 +417,20 @@
     });
   }
 
+  function syncBotInputs(){
+    tbody.querySelectorAll('input.score,input.kast').forEach(function(inp){
+      var p=+inp.dataset.p;if(state.players[p].bot)inp.value=state.players[p][inp.dataset.t][inp.dataset.c];
+    });
+  }
+
   tbody.addEventListener('input',function(e){
     var inp=e.target;if(!inp.dataset||!inp.dataset.c)return;
-    var p=+inp.dataset.p,c=inp.dataset.c,t=inp.dataset.t,v=inp.value;
+    var p=+inp.dataset.p;if(state.players[p].bot)return;
+    var c=inp.dataset.c,t=inp.dataset.t,v=inp.value;
     if(v!==''){var n=parseInt(v,10);if(isNaN(n))v='';else{if(n<0)n=0;v=String(n);inp.value=v;}}
     state.players[p][t][c]=v;
+    var hp=maxHumanPlayed();
+    if(hp>lastHumanPlayed){lastHumanPlayed=hp;advanceBotsTo(hp);syncBotInputs();}
     save();refresh();
   });
 
@@ -292,17 +443,19 @@
       var bEl=document.getElementById('bo-'+i),bv=bonusVal(p),bp=bonusProgress(p);
       bEl.className='sv'+(bv>0?' hit':'');
       bEl.innerHTML=bv+' <span class="pace '+(bp>=0?'neg':'pos')+'">('+sgn(bp)+')</span>';
+      var tbEl=document.getElementById('tb-'+i),tbv=throwBonus(p);
+      tbEl.textContent=tbv;tbEl.className='sv'+(tbv>0?' hit':'');
       setT('tt-'+i,tot);
 
       var mx=document.getElementById('mx-'+i);
-      if(pl>=ROUNDS){mx.textContent='Færdig';mx.className='sv done';}
+      if(pl>=ROUNDS){mx.textContent='Done';mx.className='sv done';}
       else{mx.textContent=maxRound(p);mx.className='sv'+(ok?'':' alarm');}
 
       var sEl=document.getElementById('ss-'+i),ss=slagStatus(p);
       sEl.textContent=sgn(ss);sEl.className='sv'+(ss<0?' pos':(ss>0?' neg':''));
 
-      var lEl=document.getElementById('lt-'+i),left=BUDGET-used(p);
-      lEl.innerHTML=left+' <span class="of">/'+BUDGET+'</span>';
+      var lEl=document.getElementById('lt-'+i),left=BUDGET()-used(p);
+      lEl.innerHTML=left+' <span class="of">/'+BUDGET()+'</span>';
       lEl.className='sv'+(ok?'':' alarm2');
 
       tbody.querySelectorAll('input.kast[data-p="'+i+'"]').forEach(function(k){k.classList.toggle('over',!ok);});
@@ -316,25 +469,95 @@
     }
   }
 
-  var pcountEl=document.getElementById('pcount');
-  function syncCount(){pcountEl.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',+b.dataset.n===N());});}
-  pcountEl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;state.nplayers=+b.dataset.n;save();syncCount();rebuild();});
+  function updateBadge(){
+    var d=DIFFS[state.difficulty];
+    document.getElementById('diffBadge').innerHTML='<b>'+d.name+'</b> · '+d.budget+' throws';
+    document.getElementById('botBtn').classList.toggle('hidden',!anyBot());
+  }
+  function updateHelp(){
+    var B=BUDGET(),start=B-ROUNDS*BASE,r1=B-(ROUNDS-1);
+    var h='<p>'+ROUNDS+' rounds. You have <code>'+B+' throws</code> in total per player'+
+      (state.difficulty==='normal'?' (the standard 3 per round).':' — a twist: fewer than the normal 54.')+'</p>'+
+      '<ul>'+
+      '<li>If you finish a round on fewer throws, you <b>save the rest</b>. Enter <code>0</code> to save all 3 throws that round.</li>'+
+      '<li>You may use extra throws, as long as <b>at least 1 throw remains for each remaining round</b>.</li>'+
+      '<li><b>Max this round</b> = <code>'+B+' − used − (rounds left − 1)</code>. Round 1: up to <code>'+r1+'</code>.</li>'+
+      '<li><b>Throw status</b>: starts at <code>'+sgn(start)+'</code> ('+B+' throws vs. the normal 54). Save throws to bring it toward 0 — positive = ahead, negative = behind.</li>'+
+      '<li><b>Bonus status</b> (in parentheses by the bonus): pace toward the bonus (<b>'+state.settings.thresh+'</b>). 5 fours = <code>+4</code>.</li>'+
+      '<li><b>Yatzy</b> (6 alike): remember to add <b>100 points</b> yourself, on top of the dice sum.</li>'+
+      '<li><b>Throws-left bonus</b>: every throw you have left when the game is finished is worth <b>5 points</b>.</li>'+
+      '<li><b>Bot</b> players play automatically: each time you finish a round they play one too. With bots-only, use the <b>🤖 Bot round</b> button.</li>'+
+      '</ul>';
+    document.getElementById('ruleBody').innerHTML=h;
+  }
 
+  /* ===== setup screen ===== */
+  var setupScreen=document.getElementById('setupScreen'),gameScreen=document.getElementById('gameScreen');
+  var setupCount=document.getElementById('setupCount'),nameList=document.getElementById('nameList'),diffPick=document.getElementById('diffPick');
+  var setup={count:state.nplayers,diff:state.difficulty,names:[],bots:[]};
+  for(var k=0;k<MAXP;k++){setup.names.push(state.players[k]&&!state.players[k].bot?state.players[k].name:'Player '+(k+1));setup.bots.push(state.players[k]?state.players[k].bot:false);}
+
+  function renderNames(){
+    var h='';
+    for(var i=0;i<setup.count;i++){
+      var nm=setup.bots[i]?('Bot '+(i+1)):esc(setup.names[i]);
+      h+='<div class="namerow"><span class="idx">'+(i+1)+'</span>'+
+         '<input class="nm" data-i="'+i+'" maxlength="14" value="'+nm+'"'+(setup.bots[i]?' disabled':'')+' placeholder="Player '+(i+1)+'">'+
+         '<button class="botbtn'+(setup.bots[i]?' on':'')+'" data-i="'+i+'">🤖 Bot</button></div>';
+    }
+    nameList.innerHTML=h;
+    nameList.querySelectorAll('input.nm').forEach(function(inp){
+      inp.addEventListener('input',function(){setup.names[+inp.dataset.i]=inp.value;});
+    });
+    nameList.querySelectorAll('.botbtn').forEach(function(b){
+      b.addEventListener('click',function(){var i=+b.dataset.i;setup.bots[i]=!setup.bots[i];renderNames();});
+    });
+  }
+  function syncSetupCount(){setupCount.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',+b.dataset.n===setup.count);});}
+  function syncSetupDiff(){diffPick.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.d===setup.diff);});}
+  setupCount.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setup.count=+b.dataset.n;syncSetupCount();renderNames();});
+  diffPick.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setup.diff=b.dataset.d;syncSetupDiff();});
+
+  function showSetup(){
+    setup.count=state.nplayers;setup.diff=state.difficulty;
+    for(var i=0;i<MAXP;i++){setup.bots[i]=state.players[i].bot;if(!state.players[i].bot)setup.names[i]=state.players[i].name;}
+    syncSetupCount();syncSetupDiff();renderNames();
+    gameScreen.classList.add('hidden');setupScreen.classList.remove('hidden');
+  }
+  function startGame(){
+    state.nplayers=setup.count;state.difficulty=setup.diff;state.started=true;
+    for(var i=0;i<MAXP;i++){
+      var e=emptyScores();state.players[i].score=e.score;state.players[i].kast=e.kast;
+      state.players[i].bot=!!setup.bots[i];
+      state.players[i].name=setup.bots[i]?('Bot '+(i+1)):(setup.names[i]&&setup.names[i].trim()?setup.names[i]:'Player '+(i+1));
+    }
+    lastHumanPlayed=0;
+    save();showGame();
+  }
+  function showGame(){
+    setupScreen.classList.add('hidden');gameScreen.classList.remove('hidden');
+    buildBoard();updateBadge();syncSet();updateHelp();refresh();
+  }
+  document.getElementById('startBtn').onclick=startGame;
+
+  /* ===== settings / buttons ===== */
   var ov=document.getElementById('ov');
   var sT=document.getElementById('setThresh'),sB=document.getElementById('setBonus');
   function syncSet(){sT.value=state.settings.thresh;sB.value=state.settings.bonus;}
-  document.getElementById('helpBtn').onclick=function(){ov.classList.add('show');};
+  document.getElementById('helpBtn').onclick=function(){updateHelp();ov.classList.add('show');};
   document.getElementById('closeBtn').onclick=function(){ov.classList.remove('show');};
   ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('show');});
-  sT.addEventListener('input',function(){state.settings.thresh=num(sT.value);save();var bl=document.getElementById('blab');if(bl)bl.textContent='Bonus (ved '+state.settings.thresh+'+)';refresh();});
+  sT.addEventListener('input',function(){state.settings.thresh=num(sT.value);save();var bl=document.getElementById('blab');if(bl)bl.textContent='Bonus (at '+state.settings.thresh+'+)';updateHelp();refresh();});
   sB.addEventListener('input',function(){state.settings.bonus=num(sB.value);save();refresh();});
 
-  document.getElementById('resetBtn').onclick=function(){if(confirm('Start nyt spil? Alle point og slag nulstilles.')){var n=state.nplayers;state=newState();state.nplayers=n;save();rebuild();}};
+  document.getElementById('botBtn').onclick=function(){
+    var maxBot=0;for(var i=0;i<N();i++)if(state.players[i].bot){var pl=played(state.players[i]);if(pl>maxBot)maxBot=pl;}
+    advanceBotsTo(maxBot+1);syncBotInputs();save();refresh();
+  };
+  document.getElementById('resetBtn').onclick=function(){showSetup();};
   document.getElementById('exportBtn').onclick=function(){var blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='strategy-yatzy.html';a.click();};
 
-  function rebuild(){buildBoard();syncCount();syncSet();refresh();}
-
-  // iOS/iPad: tip om installation på hjemmeskærm (vises kun i Safari, ikke som installeret app)
+  // iOS/iPad: hint about installing on the home screen (Safari only, not when already installed)
   (function(){
     var ua=navigator.userAgent||'';
     var isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -346,9 +569,11 @@
     if(c)c.onclick=function(){if(t)t.style.display='none';try{localStorage.setItem('sy_tip','1');}catch(e){}};
   })();
 
-  rebuild();
+  // boot
+  if(state.started){lastHumanPlayed=maxHumanPlayed();showGame();}
+  else{showSetup();}
 })();
 </script>
-<div id="iostip">Installer på hjemmeskærmen: tryk <b>Del</b> i Safari og vælg <b>Føj til hjemmeskærm</b>.<button id="iostipclose">OK</button></div>
+<div id="iostip">Add to your home screen: tap <b>Share</b> in Safari and choose <b>Add to Home Screen</b>.<button id="iostipclose">OK</button></div>
 </body>
 </html>
