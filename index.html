@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#103a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Strategy Yatzy">
+<link rel="icon" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Strategy Yatzy · 6 terninger · Scoretavle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt:#103a2e; --felt-2:#0a2a21;
+    --card:#f6efe1; --card-line:#e1d4ba;
+    --ink:#23201a; --ink-soft:#6f6452;
+    --gold:#c9952c; --gold-deep:#9c6f17;
+    --good:#2f7d54; --bad:#b23a2e; --over:#c46a1d;
+    --shadow:0 12px 34px rgba(0,0,0,.32);
+    --display:'DM Sans','Segoe UI',system-ui,sans-serif;
+    --mono:'DM Sans','Segoe UI',system-ui,sans-serif;
+    --body:'DM Sans','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  .sv,.cell input,.pname{font-variant-numeric:tabular-nums}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--body);color:var(--ink);
+    background:radial-gradient(120% 90% at 50% -10%, #1a5040 0%, var(--felt) 42%, var(--felt-2) 100%) fixed, var(--felt);
+    min-height:100vh;min-height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px;display:flex;flex-direction:column;align-items:center}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:radial-gradient(rgba(255,255,255,.7) .6px,transparent .7px);background-size:5px 5px;z-index:0}
+  .wrap{max-width:1080px;margin:0 auto;width:100%;position:relative;z-index:1;display:flex;flex-direction:column;gap:6px}
+
+  /* top bar */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{font-family:var(--display);font-weight:600;font-size:30px;line-height:1;color:#fdf7e9;margin:0;letter-spacing:-.01em}
+  .brand h1 .dot{color:var(--gold)}
+  .brand .tag{color:#bfd8c9;font-size:14px}
+  .top-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .seg{display:flex;align-items:center;gap:7px;color:#cfe3d6;font-size:14px;font-weight:600}
+  .seg .btns{display:flex;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:9px;overflow:hidden}
+  .seg .btns button{border:none;background:transparent;color:#dfeee5;font-family:var(--mono);font-weight:700;width:30px;height:28px;cursor:pointer;font-size:15.5px}
+  .seg .btns button.on{background:var(--gold);color:#241a06}
+  .seg .btns button:not(.on):hover{background:rgba(255,255,255,.1)}
+  button.btn{font-family:var(--body);font-weight:600;font-size:14.5px;cursor:pointer;border-radius:9px;padding:7px 11px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#f3ecdb}
+  button.btn:hover{background:rgba(255,255,255,.14)}
+  button.icon{width:30px;height:30px;padding:0;font-size:17px;font-weight:700}
+
+  /* board */
+  .board{background:var(--card);border:1px solid var(--card-line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}
+  table{border-collapse:collapse;width:100%}
+  col.cat{width:23%}
+  th,td{padding:0;text-align:center}
+  thead th{background:#15463a;color:#f4ecd9;font-weight:600;padding:3px 5px}
+  thead th.cat{text-align:left;padding-left:13px;font-size:13px}
+  thead th.lead{background:#1c5848;box-shadow:inset 0 -2.5px 0 var(--gold)}
+  .pname{border:none;background:transparent;font-family:var(--display);font-weight:600;font-size:17px;color:#fdf7e9;
+    text-align:center;width:100%;padding:1px 2px;outline:none;border-bottom:1.5px dashed transparent}
+  .pname:focus{border-bottom-color:var(--gold)}
+  .lead .pname{color:#ffe6a6}
+
+  tbody td{border-top:1px solid var(--card-line)}
+  .catname{text-align:left;padding:1px 13px;font-weight:500;color:var(--ink);font-size:14.5px;display:flex;align-items:baseline;gap:6px}
+  .catname .hint{font-size:12px;color:var(--ink-soft);font-weight:400}
+  tr.cat-row td{background:#f5eedd}
+  tr.cat-row:nth-child(even) td{background:#e9dec7}
+  .cell{border-left:1px solid var(--card-line);padding:0 5px}
+  .pair{display:flex;gap:4px;align-items:center;justify-content:center}
+  .cell input{font-family:var(--mono);text-align:center;border:1px solid #d8cbb0;border-radius:6px;background:#fffdf7;color:var(--ink);outline:none;transition:.12s;-moz-appearance:textfield}
+  .cell input::-webkit-outer-spin-button,.cell input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .cell input.score{width:52px;height:24px;font-size:17px;font-weight:700}
+  .cell input.kast{width:31px;height:24px;font-size:13px;color:var(--ink-soft);background:#f1ead8}
+  .cell input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,149,44,.2)}
+  .cell input.kast.over{border-color:var(--bad);color:var(--bad);box-shadow:0 0 0 2px rgba(178,58,46,.2)}
+
+  tr.sumrow td{background:#e8dcc2}
+  tr.sumrow .catname{font-weight:600;color:var(--gold-deep);font-size:14px}
+  tr.sumrow .sv{font-family:var(--mono);font-weight:700;font-size:15px}
+  tr.bonusrow td{background:#efe7d4}
+  tr.bonusrow .catname{font-style:italic;color:var(--ink-soft);font-weight:500;font-size:13px}
+  tr.bonusrow .sv{font-family:var(--mono);font-weight:700;font-size:14.5px}
+  tr.bonusrow .sv.hit{color:var(--good)}
+  tr.bonusrow .pace{font-size:12.5px;margin-left:3px}
+  tr.totalrow td{background:#15463a;border-top:2px solid var(--gold)}
+  tr.totalrow .catname{color:#fdf3da;font-family:var(--display);font-weight:600;font-size:17px}
+  tr.totalrow .sv{font-family:var(--mono);font-weight:700;font-size:20.5px;color:#ffd86b}
+  tr.totalrow td.lead .sv{text-shadow:0 0 10px rgba(255,216,107,.5)}
+  tr.statrow td{background:#ede4d0}
+  tr.statrow .catname{font-size:12.5px;color:var(--ink-soft);font-weight:600;font-style:italic}
+  tr.statrow .sv{font-family:var(--mono);font-weight:700;font-size:15.5px;color:var(--ink)}
+  tr.maxrow td{background:#f4ead2}
+  tr.maxrow .catname{font-size:12.5px;color:var(--gold-deep);font-weight:700;font-style:normal}
+  tr.maxrow .sv{font-family:var(--mono);font-weight:700;font-size:18px;color:var(--gold-deep)}
+  tr.maxrow .sv.alarm{color:var(--bad);outline:2px solid var(--bad);border-radius:5px;padding:0 4px}
+  tr.maxrow .sv.done{font-size:13px;color:var(--good)}
+  tr.leftrow td{background:#e7ddc6}
+  tr.leftrow .catname{font-size:12.5px;color:var(--gold-deep);font-weight:700;font-style:normal}
+  tr.leftrow .sv{font-family:var(--mono);font-weight:700;font-size:17px;color:var(--ink)}
+  tr.leftrow .sv.alarm2{color:var(--bad)}
+  tr.leftrow .of{font-size:17px}
+  .sv.pos{color:var(--over)} .sv.neg{color:var(--good)}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(8,20,16,.6);backdrop-filter:blur(3px);z-index:30;display:none;align-items:center;justify-content:center;padding:18px}
+  .ov.show{display:flex}
+  .modal{background:var(--card);border-radius:16px;max-width:520px;width:100%;padding:20px 22px;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+  .modal h2{font-family:var(--display);font-weight:600;margin:0 0 8px;font-size:24px;color:var(--ink)}
+  .modal p,.modal li{font-size:15.5px;line-height:1.5;color:#3a352c}
+  .modal code{font-family:var(--mono);background:#ece2cc;padding:1px 5px;border-radius:5px;color:var(--gold-deep);font-size:14.5px}
+  .modal ul{padding-left:18px;margin:7px 0}
+  .modal b{color:var(--ink)}
+  .setrow{display:flex;gap:16px;flex-wrap:wrap;margin:13px 0 2px;padding-top:11px;border-top:1px solid var(--card-line)}
+  .setrow label{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;color:var(--ink)}
+  .setrow input{width:60px;font-family:var(--mono);font-weight:700;text-align:center;border:1px solid var(--card-line);background:#fffdf7;border-radius:8px;padding:5px;outline:none;color:var(--gold-deep)}
+  .modal .close{float:right;border:none;background:#e6dcc6;border-radius:9px;width:30px;height:30px;cursor:pointer;font-weight:700;color:var(--ink)}
+
+  footer{text-align:center;color:#9fc0ad;font-size:12.5px;margin-top:auto;padding-top:6px}
+  @media (max-width:720px){body{padding:8px 6px}.board{overflow-x:auto}table{min-width:540px}}
+  html{-webkit-text-size-adjust:100%}
+  body{-webkit-tap-highlight-color:transparent;
+    padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  .top,.board,thead,.catname,button.btn,.seg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  .cell input,.pname{-webkit-user-select:text;user-select:text}
+  #iostip{position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
+    background:rgba(16,58,46,.97);color:#f3ecdb;font-size:13px;line-height:1.45;
+    padding:11px 16px calc(11px + env(safe-area-inset-bottom));text-align:center;border-top:1px solid rgba(255,255,255,.16)}
+  #iostip b{color:#ffd86b}
+  #iostip button{margin-left:10px;background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><h1>Strategy <span class="dot">Yatzy</span></h1></div>
+    <div class="top-r">
+      <div class="seg">Spillere
+        <div class="btns" id="pcount">
+          <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button><button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+        </div>
+      </div>
+      <button class="btn icon" id="helpBtn" title="Regler & indstillinger">?</button>
+      <button class="btn" id="exportBtn">Gem fil</button>
+      <button class="btn" id="resetBtn">Nyt spil</button>
+    </div>
+  </div>
+
+  <div class="board">
+    <table>
+      <colgroup id="cols"></colgroup>
+      <thead><tr id="thead"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>Stort felt = point · lille felt = kast brugt i runden · data gemmes lokalt · tryk “?” for regler</footer>
+</div>
+
+<div class="ov" id="ov">
+  <div class="modal">
+    <button class="close" id="closeBtn">×</button>
+    <h2>Regler: opsparede slag</h2>
+    <p>18 runder. Du har <code>50 slag</code> i alt pr. spiller — et twist: 4 færre end de normale 54.</p>
+    <ul>
+      <li>Slutter du en runde på færre slag, <b>sparer du resten op</b>. Skriv <code>0</code> for at spare alle 3 slag den runde.</li>
+      <li>Du må bruge ekstra slag, så længe der bliver <b>mindst 1 slag til hver resterende runde</b>.</li>
+      <li><b>Max denne runde</b> = <code>50 − brugt − (resterende runder − 1)</code>. Runde 1: op til <code>33</code>.</li>
+      <li><b>Slag-status</b>: starter på <code>−4</code> (50 slag mod normalt 54). Spar slag op for at hente det op mod 0 — positivt = forspring, negativt = bagud.</li>
+      <li><b>Bonus-status</b> (i parentes ved bonus): kurs mod bonussen (<b>85</b>). 5 firere = <code>+4</code>.</li>
+      <li><b>Yatzy</b> (6 ens): husk at lægge <b>100 point</b> til selv, oveni øjnenes sum.</li>
+    </ul>
+    <div class="setrow">
+      <label>Bonusgrænse <input type="number" id="setThresh" min="0"></label>
+      <label>Bonuspoint <input type="number" id="setBonus" min="0"></label>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var ROUNDS=18, BASE=3, BUDGET=50; // twist: 50 slag i alt (normalt 54)
+  var KEY='yatzy6_state_v4';
+
+  var UPPER=[
+    {key:'enere',name:'Enere',hint:'1\u2019ere'},{key:'toere',name:'Toere',hint:'2\u2019ere'},
+    {key:'treere',name:'Treere',hint:'3\u2019ere'},{key:'firere',name:'Firere',hint:'4\u2019ere'},
+    {key:'femmere',name:'Femmere',hint:'5\u2019ere'},{key:'seksere',name:'Seksere',hint:'6\u2019ere'}
+  ];
+  var LOWER=[
+    {key:'etpar',name:'Et par',hint:'2 ens'},{key:'topar',name:'To par',hint:'2+2'},
+    {key:'trepar',name:'Tre par',hint:'2+2+2'},{key:'treens',name:'Tre ens',hint:'3 ens'},
+    {key:'fireens',name:'Fire ens',hint:'4 ens'},
+    {key:'lillestr',name:'Lille straight',hint:'1-2-3-4-5'},{key:'storstr',name:'Stor straight',hint:'2-3-4-5-6'},
+    {key:'royale',name:'Royale',hint:'1-2-3-4-5-6'},
+    {key:'hus',name:'Hus',hint:'3+2 ens'},{key:'villa',name:'Villa',hint:'3+3 ens'},
+    {key:'chance',name:'Chance',hint:'alle terninger'},
+    {key:'yatzy',name:'Yatzy',hint:'6 ens · læg selv +100 til'}
+  ];
+  var ALL=UPPER.concat(LOWER);
+
+  var MAXP=6;
+  function emptyPlayer(i){var sc={},ka={};ALL.forEach(function(c){sc[c.key]='';ka[c.key]='';});return {name:'Spiller '+(i+1),score:sc,kast:ka};}
+  function newState(){
+    var players=[];for(var i=0;i<MAXP;i++)players.push(emptyPlayer(i));
+    return {players:players,nplayers:2,settings:{thresh:85,bonus:50}};
+  }
+  function load(){
+    try{var s=JSON.parse(localStorage.getItem(KEY));
+      if(!s||!s.players||!s.players.length)return null;
+      var ok=true;ALL.forEach(function(c){if(!(c.key in s.players[0].score))ok=false;});
+      if(!ok)return null;
+      while(s.players.length<MAXP)s.players.push(emptyPlayer(s.players.length));
+      if(s.players.length>MAXP)s.players=s.players.slice(0,MAXP);
+      if(!s.settings)s.settings={thresh:85,bonus:50};
+      if(!s.nplayers)s.nplayers=2;
+      if(s.nplayers>MAXP)s.nplayers=MAXP;
+      return s;
+    }catch(e){return null;}
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var state=load()||newState();
+
+  function num(v){var n=parseInt(v,10);return isNaN(n)?0:n;}
+  function filled(v){return v!==''&&v!=null;}
+  function played(p){var c=0;ALL.forEach(function(x){if(filled(p.kast[x.key]))c++;});return c;}
+  function used(p){var t=0;ALL.forEach(function(x){if(filled(p.kast[x.key]))t+=num(p.kast[x.key]);});return t;}
+  function maxRound(p){var pl=played(p);return pl>=ROUNDS?0:BUDGET-used(p)-(ROUNDS-pl-1);}
+  function feasible(p){return (BUDGET-used(p))>=(ROUNDS-played(p));}
+  function slagStatus(p){return BUDGET-used(p)-BASE*(ROUNDS-played(p));} // starter paa -4, hentes op mod 0
+  function upperSum(p){var s=0;UPPER.forEach(function(c){s+=num(p.score[c.key]);});return s;}
+  function bonusVal(p){return upperSum(p)>=state.settings.thresh?state.settings.bonus:0;}
+  function bonusProgress(p){var pr=0;UPPER.forEach(function(c,i){if(filled(p.score[c.key]))pr+=num(p.score[c.key])-4*(i+1);});return pr;}
+  function lowerSum(p){var s=0;LOWER.forEach(function(c){s+=num(p.score[c.key]);});return s;}
+  function total(p){return upperSum(p)+bonusVal(p)+lowerSum(p);}
+  function N(){return state.nplayers;}
+  function sgn(n){return (n>0?'+':'')+n;}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+
+  var cols=document.getElementById('cols'),thead=document.getElementById('thead'),tbody=document.getElementById('tbody');
+  function cellInputs(key){var c='';for(var i=0;i<N();i++)c+='<td class="cell"><div class="pair">'+
+    '<input class="score" type="number" inputmode="numeric" data-p="'+i+'" data-c="'+key+'" data-t="score" placeholder="–">'+
+    '<input class="kast" type="number" inputmode="numeric" min="0" data-p="'+i+'" data-c="'+key+'" data-t="kast" placeholder="" title="Antal kast i runden (0 = spar hele runden op)">'+
+    '</div></td>';return c;}
+  function sumCells(id,extra){var c='';for(var i=0;i<N();i++)c+='<td class="cell'+(extra?' '+extra+'-'+i:'')+'" id="'+(extra||'x')+'cell-'+i+'"><span class="sv" id="'+id+'-'+i+'">0</span></td>';return c;}
+
+  function buildBoard(){
+    var cg='<col class="cat">';for(var i=0;i<N();i++)cg+='<col>';cols.innerHTML=cg;
+    var th='<th class="cat">Kategori</th>';
+    for(var j=0;j<N();j++)th+='<th id="th-'+j+'"><input class="pname" data-p="'+j+'" maxlength="14" value="'+esc(state.players[j].name)+'"></th>';
+    thead.innerHTML=th;
+
+    var html='';
+    UPPER.forEach(function(c){html+='<tr class="cat-row"><td class="catname">'+c.name+'<span class="hint">'+c.hint+'</span></td>'+cellInputs(c.key)+'</tr>';});
+    html+='<tr class="sumrow"><td class="catname">Sum øvre</td>'+sumCells('us')+'</tr>';
+    html+='<tr class="bonusrow"><td class="catname" id="blab">Bonus (ved '+state.settings.thresh+'+)</td>'+sumCells('bo')+'</tr>';
+    LOWER.forEach(function(c){html+='<tr class="cat-row"><td class="catname">'+c.name+'<span class="hint">'+c.hint+'</span></td>'+cellInputs(c.key)+'</tr>';});
+    html+='<tr class="totalrow"><td class="catname">I alt</td>'+sumCells('tt','tot')+'</tr>';
+    html+='<tr class="maxrow"><td class="catname">Max kast · denne runde</td>'+sumCells('mx')+'</tr>';
+    html+='<tr class="leftrow"><td class="catname">Slag tilbage i alt</td>'+sumCells('lt')+'</tr>';
+    html+='<tr class="statrow"><td class="catname">Slag-status (ift. 3/runde)</td>'+sumCells('ss')+'</tr>';
+    tbody.innerHTML=html;
+
+    tbody.querySelectorAll('input.score,input.kast').forEach(function(inp){inp.value=state.players[+inp.dataset.p][inp.dataset.t][inp.dataset.c];});
+    thead.querySelectorAll('input.pname').forEach(function(inp){
+      inp.addEventListener('input',function(){var p=+inp.dataset.p;state.players[p].name=inp.value;save();});
+    });
+  }
+
+  tbody.addEventListener('input',function(e){
+    var inp=e.target;if(!inp.dataset||!inp.dataset.c)return;
+    var p=+inp.dataset.p,c=inp.dataset.c,t=inp.dataset.t,v=inp.value;
+    if(v!==''){var n=parseInt(v,10);if(isNaN(n))v='';else{if(n<0)n=0;v=String(n);inp.value=v;}}
+    state.players[p][t][c]=v;
+    save();refresh();
+  });
+
+  function setT(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  function refresh(){
+    var totals=[];
+    for(var i=0;i<N();i++){
+      var p=state.players[i],pl=played(p),ok=feasible(p),tot=total(p);
+      setT('us-'+i,upperSum(p));
+      var bEl=document.getElementById('bo-'+i),bv=bonusVal(p),bp=bonusProgress(p);
+      bEl.className='sv'+(bv>0?' hit':'');
+      bEl.innerHTML=bv+' <span class="pace '+(bp>=0?'neg':'pos')+'">('+sgn(bp)+')</span>';
+      setT('tt-'+i,tot);
+
+      var mx=document.getElementById('mx-'+i);
+      if(pl>=ROUNDS){mx.textContent='Færdig';mx.className='sv done';}
+      else{mx.textContent=maxRound(p);mx.className='sv'+(ok?'':' alarm');}
+
+      var sEl=document.getElementById('ss-'+i),ss=slagStatus(p);
+      sEl.textContent=sgn(ss);sEl.className='sv'+(ss<0?' pos':(ss>0?' neg':''));
+
+      var lEl=document.getElementById('lt-'+i),left=BUDGET-used(p);
+      lEl.innerHTML=left+' <span class="of">/'+BUDGET+'</span>';
+      lEl.className='sv'+(ok?'':' alarm2');
+
+      tbody.querySelectorAll('input.kast[data-p="'+i+'"]').forEach(function(k){k.classList.toggle('over',!ok);});
+      totals.push(tot);
+    }
+    var mxv=Math.max.apply(null,totals);
+    for(var j=0;j<N();j++){
+      var lead=N()>1&&mxv>0&&totals[j]===mxv;
+      var thEl=document.getElementById('th-'+j);if(thEl)thEl.className=lead?'lead':'';
+      var tc=document.getElementById('totcell-'+j);if(tc)tc.className='cell'+(lead?' lead':'');
+    }
+  }
+
+  var pcountEl=document.getElementById('pcount');
+  function syncCount(){pcountEl.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',+b.dataset.n===N());});}
+  pcountEl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;state.nplayers=+b.dataset.n;save();syncCount();rebuild();});
+
+  var ov=document.getElementById('ov');
+  var sT=document.getElementById('setThresh'),sB=document.getElementById('setBonus');
+  function syncSet(){sT.value=state.settings.thresh;sB.value=state.settings.bonus;}
+  document.getElementById('helpBtn').onclick=function(){ov.classList.add('show');};
+  document.getElementById('closeBtn').onclick=function(){ov.classList.remove('show');};
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('show');});
+  sT.addEventListener('input',function(){state.settings.thresh=num(sT.value);save();var bl=document.getElementById('blab');if(bl)bl.textContent='Bonus (ved '+state.settings.thresh+'+)';refresh();});
+  sB.addEventListener('input',function(){state.settings.bonus=num(sB.value);save();refresh();});
+
+  document.getElementById('resetBtn').onclick=function(){if(confirm('Start nyt spil? Alle point og slag nulstilles.')){var n=state.nplayers;state=newState();state.nplayers=n;save();rebuild();}};
+  document.getElementById('exportBtn').onclick=function(){var blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='strategy-yatzy.html';a.click();};
+
+  function rebuild(){buildBoard();syncCount();syncSet();refresh();}
+
+  // iOS/iPad: tip om installation på hjemmeskærm (vises kun i Safari, ikke som installeret app)
+  (function(){
+    var ua=navigator.userAgent||'';
+    var isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    var standalone=('standalone' in navigator)&&navigator.standalone;
+    var dismissed=false;try{dismissed=localStorage.getItem('sy_tip')==='1';}catch(e){}
+    var t=document.getElementById('iostip');
+    if(t&&isIOS&&!standalone&&!dismissed)t.style.display='block';
+    var c=document.getElementById('iostipclose');
+    if(c)c.onclick=function(){if(t)t.style.display='none';try{localStorage.setItem('sy_tip','1');}catch(e){}};
+  })();
+
+  rebuild();
+})();
+</script>
+<div id="iostip">Installer på hjemmeskærmen: tryk <b>Del</b> i Safari og vælg <b>Føj til hjemmeskærm</b>.<button id="iostipclose">OK</button></div>
+</body>
+</html>
