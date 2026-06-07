@@ -14,7 +14,7 @@ How to play
 - Choose a difficulty: Normal (54 throws), Difficult (50) or Hard (46).
 - Large field = points, small field = throws used that round
   (enter 0 to save the whole round).
-- Every throw you have left when the game is finished is worth 5 bonus points.
+- Every throw you have left when the game is finished is worth 2 bonus points.
 - Bots play automatically: each time you finish a round they play one too.
   In a bots-only game, use the "Bot round" button to advance them.
 
